@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tap Payments - Card Integration</title>
+  <title>Card Integration</title>
   <script src="https://tap-sdks.b-cdn.net/card/1.0.2/index.js"></script>
   <style>
     body {
@@ -195,7 +195,7 @@
 <body>
 
 <div class="header">
-  💳 Tap Payments — Card Integration Demo
+Card Integration Demo
 </div>
 
 <div class="container">
@@ -242,7 +242,7 @@
     </button>
 
     <div class="test-hint">
-      🧪 <strong>Test Card:</strong>
+       <strong>Test Card:</strong>
       &nbsp; Number: <b>4111 1111 1111 1111</b>
       &nbsp; Expiry: <b>01/39</b>
       &nbsp; CVV: <b>100</b>
@@ -256,12 +256,12 @@
     <h3>Verify Payment (OTP)</h3>
     <p class="subtitle">Enter the OTP sent by your bank to confirm payment.</p>
 
-    <div class="message msg-info show" id="msg-3ds">⏳ Loading OTP page...</div>
+    <div class="message msg-info show" id="msg-3ds"> Loading OTP page...</div>
 
     <iframe id="threeds-frame"></iframe>
 
     <button class="btn btn-gray" id="verifyBtn" onclick="verifyPayment()" style="display:none;">
-      ✓ I entered OTP — Confirm Payment
+       I entered OTP — Confirm Payment
     </button>
 
     <input type="hidden" id="charge-id" />
@@ -301,7 +301,7 @@
   ══════════════════════════════════════ -->
   <div class="section" id="section-success">
     <div class="success-box">
-      <div class="icon">✅</div>
+      <div class="icon"></div>
       <h3>Payment Successful!</h3>
       <p id="success-text">Payment charged without OTP.</p>
     </div>
@@ -313,7 +313,7 @@
 </div>
 
 <script>
-  // ─── CONFIG ──────────────────────────────────────
+  // ---KEYS ---
   var PUBLIC_KEY  = 'pk_test_EtHFV4BuPQokJT6jiROls87Y';
   var SECRET_KEY  = 'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ';
   var MERCHANT_ID = '599424';
@@ -330,7 +330,7 @@
     cardLast4:   null
   };
 
-  // ─── SHOW / HIDE SECTIONS ─────────────────────────
+  
   function showSection(id) {
     var sections = document.querySelectorAll('.section');
     for (var i = 0; i < sections.length; i++) {
@@ -339,7 +339,6 @@
     document.getElementById(id).classList.add('active');
   }
 
-  // ─── SHOW MESSAGE ─────────────────────────────────
   function showMsg(id, type, text) {
     var el = document.getElementById(id);
     el.className = 'message ' + type + ' show';
@@ -414,7 +413,7 @@
     onChangeSaveCardLater: function(v)  { console.log('Save card:', v); },
     onError: function(err) {
       console.error('SDK Error:', err);
-      showMsg('msg-pay', 'msg-error', '❌ Card error: ' + (err.message || JSON.stringify(err)));
+      showMsg('msg-pay', 'msg-error', ' Card error: ' + (err.message || JSON.stringify(err)));
     },
     onSuccess: function(tokenData) {
       console.log('Token received:', tokenData);
@@ -498,7 +497,7 @@
         if (frameUrl.includes('verified=1')) {
           clearInterval(checkInterval);
           frame.style.display = 'none';
-          showMsg('msg-3ds', 'msg-success', '✅ OTP verified! Confirming payment...');
+          showMsg('msg-3ds', 'msg-success', ' OTP verified! Confirming payment...');
           setTimeout(verifyPayment, 800);
         }
       } catch(e) {
@@ -509,7 +508,7 @@
     // Show manual button after 10 seconds
     setTimeout(function() {
       document.getElementById('verifyBtn').style.display = 'block';
-      showMsg('msg-3ds', 'msg-info', '✅ OTP entered? Click the button below to confirm.');
+      showMsg('msg-3ds', 'msg-info', ' OTP entered? Click the button below to confirm.');
     }, 10000);
   }
 
@@ -528,13 +527,13 @@
       if (charge.status === 'CAPTURED') {
         saveCardData(charge);
       } else {
-        showMsg('msg-3ds', 'msg-warn', '⚠️ OTP not completed yet. Please enter OTP first.');
+        showMsg('msg-3ds', 'msg-warn', ' OTP not completed yet. Please enter OTP first.');
         document.getElementById('verifyBtn').style.display = 'block';
         document.getElementById('threeds-frame').style.display = 'block';
       }
     })
     .catch(function(err) {
-      showMsg('msg-3ds', 'msg-error', '❌ ' + err.message);
+      showMsg('msg-3ds', 'msg-error',  + err.message);
     });
   }
 
@@ -563,7 +562,7 @@
   // ─── STEP 6: MIT — PAY WITHOUT OTP ───────────────
   function payWithSavedCard() {
     if (!savedData.agreementId) {
-      showMsg('msg-mit', 'msg-warn', '⚠️ No saved card found. Please complete a payment first.');
+      showMsg('msg-mit', 'msg-warn', ' No saved card found. Please complete a payment first.');
       return;
     }
 
@@ -595,11 +594,11 @@
         showSection('section-success');
       } else {
         showMsg('msg-mit', charge.id ? 'msg-info' : 'msg-error',
-          charge.id ? 'Status: ' + charge.status : '❌ ' + ((charge.errors && charge.errors[0] && charge.errors[0].description) || JSON.stringify(charge)));
+          charge.id ? 'Status: ' + charge.status :  + ((charge.errors && charge.errors[0] && charge.errors[0].description) || JSON.stringify(charge)));
       }
     })
     .catch(function(err) {
-      showMsg('msg-mit', 'msg-error', '❌ ' + err.message);
+      showMsg('msg-mit', 'msg-error',  + err.message);
     });
   }
 
@@ -609,7 +608,7 @@
     if (params.get('verified') === '1' && params.get('tap_id')) {
       document.getElementById('charge-id').value = params.get('tap_id');
       showSection('section-3ds');
-      showMsg('msg-3ds', 'msg-info', '⏳ Confirming your payment...');
+      showMsg('msg-3ds', 'msg-info', ' Confirming your payment...');
       setTimeout(verifyPayment, 600);
     }
   };
