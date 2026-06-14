@@ -257,7 +257,7 @@ async function doVerify() {
 function captureCard(ch) {
   S.agreementId = ch.payment_agreement?.id;
   S.customerId  = ch.customer?.id;
-  S.card = { last_four: ch.card?.last_four||'****', brand: (ch.card?.brand||'VISA').toUpperCase() };
+  S.card = { last_four: ch.card?.last_four||'****', brand: (ch.card?.brand||'VISA').toUpperCase(), cardId: ch.payment_agreement?.contract?.id || ch.card?.id };
   setMsg('msg2','success','✅ Payment done! Card saved. See MIT section below ↓');
   document.getElementById('savedBox').innerHTML =
     '<div class="r2"><span class="rk">Card</span><span class="rv">•••• •••• •••• '+S.card.last_four+'</span></div>'+
@@ -279,7 +279,7 @@ async function doMIT() {
       description: 'MIT Demo',
       customer: { id: S.customerId },
       merchant:  { id: MID },
-      source:    { id: S.token?.id },
+      source:    { id: S.card?.cardId || S.token?.id },
       payment_agreement: { id: S.agreementId },
       redirect: { url: window.location.href },
       post: { url: 'https://webhook.site/tap-demo' }
