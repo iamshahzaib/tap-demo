@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tap Card Demo</title>
+  <script src="https://tap-sdks.b-cdn.net/card/1.0.2/index.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; padding: 40px 20px; }
+    .wrap { max-width: 480px; margin: 0 auto; }
+    h2 { font-size: 22px; margin-bottom: 6px; }
+    p  { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+    input, select { width: 100%; border: 1.5px solid #ddd; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; font-family: inherit; }
+    input:focus, select:focus { border-color: #1C7EFF; }
+    .row { display: flex; gap: 10px; }
+    .row input { flex: 1; }
+    .row select { width: 100px; flex-shrink: 0; }
+    #card-sdk-id { margin: 10px 0; min-height: 120px; }
+    .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; background: #1C7EFF; color: white; font-family: inherit; margin-bottom: 10px; }
+    .btn.green { background: #00C48C; }
+    .msg { border-radius: 10px; padding: 11px 14px; font-size: 13px; margin: 10px 0; display: none; word-break: break-all; }
+    .msg.show { display: block; }
+    .info    { background: #e8f1ff; color: #1C7EFF; }
+    .success { background: #e6f9f3; color: #00a876; }
+    .error   { background: #fff0f3; color: #e63946; }
+    .warn    { background: #fff8e6; color: #c87f00; }
+    hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+    .box { background: #f9f9f9; border-radius: 10px; padding: 14px; font-size: 13px; margin: 10px 0; }
+    .r2 { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size:13px; }
+    .r2:last-child { border: none; }
+    .rk { color: #888; }
+    .rv { font-weight: 600; font-family: monospace; font-size: 12px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tc { background: #f0f4ff; border-radius: 10px; padding: 12px; margin-top: 12px; font-size: 12px; }
+    .tc h4 { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .tr { display: flex; justify-content: space-between; padding: 3px 0; }
+    .tn { font-family: monospace; font-weight: 700; color: #1C7EFF; }
+    section { display: none; margin-top: 24px; }
+    section.show { display: block; }
+    .sp { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h2>⚡ Tap Payments Demo</h2>
+  <p>CIT with 3DS → Save Card → MIT (No OTP)</p>
+
+  <div class="field"><label>Full Name</label><input id="fname" value="Test User" /></div>
+  <div class="field"><label>Email</label><input id="femail" value="test@tap.company" /></div>
+  <div class="field">
+    <label>Amount</label>
+    <div class="row">
+      <input id="famount" type="number" value="1" />
+      <select id="fcur"><option>KWD</option><option>SAR</option><option>AED</option><option>USD</option></select>
+    </div>
+  </div>
+
+  <label>Card Details</label>
+  <div id="card-sdk-id"></div>
+
+  <div class="msg" id="msg1"></div>
+  <button class="btn" id="payBtn" onclick="doPay()">Pay Now (CIT + Save Card)</button>
+
+  <div class="tc">
+    <h4>Test Card</h4>
+    <div class="tr"><span>Card Number</span><span class="tn">4111 1111 1111 1111</span></div>
+    <div class="tr"><span>Expiry / CVV / Name</span><span class="tn">01/39 · 100 · Test</span></div>
+  </div>
+
+  <!-- 3DS SECTION -->
+  <section id="sec3ds">
+    <hr/>
+    <h2 style="margin-bottom:6px;">3DS Authentication</h2>
+    <p>Open 3DS page, complete OTP, then click Verify.</p>
+    <div class="box" id="chargeBox"></div>
+    <button class="btn" id="btn3ds">🔐 Open 3DS Page</button>
+    <div class="field" style="margin-top:10px;">
+      <label>Charge ID — paste here after OTP</label>
+      <input id="vid" placeholder="chg_TS..." />
+    </div>
+    <div class="msg" id="msg2"></div>
+    <button class="btn" onclick="doVerify()">✓ Verify Payment</button>
+  </section>
+
+  <!-- MIT SECTION -->
+  <section id="secMIT">
+    <hr/>
+    <h2 style="margin-bottom:6px;">Pay with Saved Card (MIT)</h2>
+    <p>No OTP required — Merchant Initiated Transaction.</p>
+    <div class="box" id="savedBox"></div>
+    <div class="field">
+      <label>Amount</label>
+      <div class="row">
+        <input id="mamount" type="number" value="1" />
+        <select id="mcur"><option>KWD</option><option>SAR</option><option>AED</option><option>USD</option></select>
+      </div>
+    </div>
+    <div class="msg" id="msg3"></div>
+    <button class="btn green" onclick="doMIT()">Pay with Saved Card (No OTP)</button>
+    <div class="box" id="mitBox" style="display:none;margin-top:10px;"></div>
+  </section>
+</div>
+
+<script>
+const PK  = 'pk_test_EtHFV4BuPQokJT6jiROls87Y';
+const SK  = 'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ';
+const MID = '599424';
+const API = 'https://api.tap.company/v2';
+const S   = {};
+
+function setMsg(id, type, txt) {
+  const el = document.getElementById(id);
+  el.className = 'msg ' + type + ' show';
+  el.innerHTML = txt;
+}
+
+// Multiple CORS proxies to try
+const PROXIES = [
+  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url) => `https://cors-anywhere.herokuapp.com/${url}`,
+];
+
+async function apiCall(path, method, body) {
+  const url  = API + path;
+  const opts = {
+    method: method || 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + SK,
+      'Content-Type': 'application/json',
+      'lang_code': 'EN'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+
+  // Try direct first
+  try {
+    const r = await fetch(url, opts);
+    if (r.ok || r.status < 500) return r;
+  } catch(e) { console.warn('Direct failed, trying proxies...'); }
+
+  // Try each proxy
+  for (const proxy of PROXIES) {
+    try {
+      const proxyUrl = proxy(url);
+      console.log('Trying proxy:', proxyUrl);
+      const r = await fetch(proxyUrl, opts);
+      if (r.ok || r.status < 500) return r;
+    } catch(e) { console.warn('Proxy failed:', e.message); }
+  }
+
+  throw new Error('All API attempts failed. Please upload to GitHub Pages — localhost blocks API calls due to CORS.');
+}
+
+// INIT SDK
+const { renderTapCard, Theme, Currencies, Direction, Edges, Locale } = window.CardSDK;
+renderTapCard('card-sdk-id', {
+  publicKey: PK,
+  merchant: { id: MID },
+  transaction: { amount: 1, currency: Currencies.KWD },
+  customer: {
+    name: [{ lang: Locale.EN, first: 'Test', last: 'User', middle: 'Test' }],
+    nameOnCard: 'Test Test',
+    editable: true,
+    contact: { email: 'test@tap.company', phone: { countryCode: '965', number: '50000000' } }
+  },
+  acceptance: { supportedBrands: ['VISA', 'MASTERCARD', 'AMERICAN_EXPRESS'], supportedCards: 'ALL' },
+  fields:  { cardHolder: true },
+  addons:  { displayPaymentBrands: true, loader: true, saveCard: true },
+  interface: { locale: Locale.EN, theme: Theme.LIGHT, edges: Edges.CURVED, direction: Direction.LTR },
+  onReady:          () => console.log('SDK Ready'),
+  onFocus:          () => console.log('focused'),
+  onBinIdentification: (d) => console.log('BIN:', d),
+  onValidInput:     (d) => console.log('valid:', d),
+  onInvalidInput:   (d) => console.log('invalid:', d),
+  onChangeSaveCardLater: (v) => console.log('saveCard:', v),
+  onError:  (d) => { console.error('SDK Error:', d); setMsg('msg1','error','❌ SDK: ' + (d?.message || d?.error || JSON.stringify(d))); },
+  onSuccess:(d) => { console.log('Token:', d); S.token = d; createCharge(d); }
+});
+
+function doPay() {
+  setMsg('msg1','info','⏳ Tokenizing card...');
+  document.getElementById('payBtn').innerHTML = '<span class="sp"></span>Processing...';
+  window.CardSDK.tokenize();
+}
+
+async function createCharge(tok) {
+  setMsg('msg1','info','⏳ Creating charge...');
+  const parts = document.getElementById('fname').value.trim().split(' ');
+  try {
+    const res = await apiCall('/charges', 'POST', {
+      amount:   parseFloat(document.getElementById('famount').value) || 1,
+      currency: document.getElementById('fcur').value,
+      threeDSecure: true,
+      save_card: true,
+      customer_initiated: true,
+      description: 'CIT Demo',
+      customer: {
+        first_name: parts[0]||'Test', last_name: parts[1]||'User',
+        email: document.getElementById('femail').value,
+        phone: { country_code: '965', number: '50000000' }
+      },
+      merchant: { id: MID },
+      source: { id: tok.id },
+      payment_agreement: { contract: { type: 'UNSCHEDULED' } },
+      redirect: { url: window.location.href },
+      post: { url: 'https://webhook.site/tap-demo' }
+    });
+
+    const ch = await res.json();
+    console.log('Charge:', ch);
+    document.getElementById('payBtn').textContent = 'Pay Now (CIT + Save Card)';
+
+    if (!ch.id) { setMsg('msg1','error','❌ ' + (ch.errors?.[0]?.description || JSON.stringify(ch))); return; }
+
+    S.charge = ch;
+    setMsg('msg1','success','✅ Charge created! Complete 3DS below ↓');
+    document.getElementById('chargeBox').innerHTML =
+      '<div class="r2"><span class="rk">Charge ID</span><span class="rv">'+ch.id+'</span></div>'+
+      '<div class="r2"><span class="rk">Amount</span><span class="rv">'+ch.amount+' '+ch.currency+'</span></div>'+
+      '<div class="r2"><span class="rk">Status</span><span class="rv">'+ch.status+'</span></div>'+
+      '<div class="r2"><span class="rk">3DS</span><span class="rv" style="color:#1C7EFF">Enabled ✓</span></div>'+
+      '<div class="r2"><span class="rk">Save Card</span><span class="rv" style="color:#00C48C">Yes ✓</span></div>';
+    document.getElementById('vid').value = ch.id;
+    document.getElementById('sec3ds').className = 'show';
+
+    if (ch.transaction?.url) {
+      document.getElementById('btn3ds').onclick = () =>
+        window.open(ch.transaction.url, '_blank', 'width=480,height=600');
+      setMsg('msg2','info','✅ Click "Open 3DS Page" → complete OTP → come back → click Verify.');
+    } else if (ch.status === 'CAPTURED') {
+      captureCard(ch);
+    }
+  } catch(e) {
+    console.error(e);
+    document.getElementById('payBtn').textContent = 'Pay Now (CIT + Save Card)';
+    setMsg('msg1','error','❌ ' + e.message + '<br><br>💡 <b>Fix:</b> Upload index.html to <a href="https://pages.github.com" target="_blank">GitHub Pages</a> — localhost blocks Tap API due to browser CORS policy.');
+  }
+}
+
+async function doVerify() {
+  const id = document.getElementById('vid').value.trim();
+  if (!id) { setMsg('msg2','warn','⚠️ Enter Charge ID'); return; }
+  setMsg('msg2','info','⏳ Verifying...');
+  try {
+    const res = await apiCall('/charges/' + id);
+    const ch  = await res.json();
+    console.log('Verified:', ch);
+    if (ch.status === 'CAPTURED') captureCard(ch);
+    else setMsg('msg2','warn','⚠️ Status: '+ch.status+'. Complete OTP first then verify.');
+  } catch(e) { setMsg('msg2','error','❌ '+e.message); }
+}
+
+function captureCard(ch) {
+  S.agreementId = ch.payment_agreement?.id;
+  S.customerId  = ch.customer?.id;
+  S.card = { last_four: ch.card?.last_four||'****', brand: (ch.card?.brand||'VISA').toUpperCase() };
+  setMsg('msg2','success','✅ Payment done! Card saved. See MIT section below ↓');
+  document.getElementById('savedBox').innerHTML =
+    '<div class="r2"><span class="rk">Card</span><span class="rv">•••• •••• •••• '+S.card.last_four+'</span></div>'+
+    '<div class="r2"><span class="rk">Brand</span><span class="rv">'+S.card.brand+'</span></div>'+
+    '<div class="r2"><span class="rk">Agreement ID</span><span class="rv">'+(S.agreementId||'N/A')+'</span></div>';
+  document.getElementById('secMIT').className = 'show';
+  document.getElementById('secMIT').scrollIntoView({ behavior:'smooth' });
+}
+
+async function doMIT() {
+  if (!S.agreementId) { setMsg('msg3','warn','⚠️ No Agreement ID. Complete CIT + Verify first.'); return; }
+  const amt = parseFloat(document.getElementById('mamount').value)||1;
+  const cur = document.getElementById('mcur').value;
+  setMsg('msg3','info','⏳ Processing MIT — no 3DS...');
+  try {
+    const res = await apiCall('/charges','POST',{
+      amount: amt, currency: cur,
+      threeDSecure: false, save_card: false, customer_initiated: false,
+      description: 'MIT Demo',
+      customer: { id: S.customerId },
+      merchant:  { id: MID },
+      source:    { id: S.token?.id },
+      payment_agreement: { id: S.agreementId },
+      redirect: { url: window.location.href },
+      post: { url: 'https://webhook.site/tap-demo' }
+    });
+    const ch = await res.json();
+    console.log('MIT:', ch);
+    if (ch.id) {
+      document.getElementById('mitBox').style.display = 'block';
+      document.getElementById('mitBox').innerHTML =
+        '<div class="r2"><span class="rk">Charge ID</span><span class="rv">'+ch.id+'</span></div>'+
+        '<div class="r2"><span class="rk">Status</span><span class="rv">'+ch.status+'</span></div>'+
+        '<div class="r2"><span class="rk">Amount</span><span class="rv">'+amt+' '+cur+'</span></div>'+
+        '<div class="r2"><span class="rk">3DS Used</span><span class="rv" style="color:#e63946">false ✗</span></div>'+
+        '<div class="r2"><span class="rk">customer_initiated</span><span class="rv">false</span></div>';
+      setMsg('msg3', ch.status==='CAPTURED'?'success':'info',
+        ch.status==='CAPTURED'?'✅ MIT Success! '+amt+' '+cur+' charged — No OTP!':'ℹ️ Status: '+ch.status);
+    } else {
+      setMsg('msg3','error','❌ '+(ch.errors?.[0]?.description||JSON.stringify(ch)));
+    }
+  } catch(e) { setMsg('msg3','error','❌ '+e.message); }
+}
+</script>
+</body>
+</html>
