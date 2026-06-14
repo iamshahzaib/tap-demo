@@ -425,13 +425,13 @@ Card Integration Demo
   // ─── STEP 1: TOKENIZE CARD ────────────────────────
   function startPayment() {
     document.getElementById('payBtn').innerHTML = '<span class="spinner"></span>Processing...';
-    showMsg('msg-pay', 'msg-info', '⏳ Tokenizing card details...');
+    showMsg('msg-pay', 'msg-info', ' Tokenizing card details...');
     window.CardSDK.tokenize();
   }
 
   // ─── STEP 2: CREATE CHARGE ────────────────────────
   function createCharge(tokenData) {
-    showMsg('msg-pay', 'msg-info', '⏳ Creating charge...');
+    showMsg('msg-pay', 'msg-info', ' Creating charge...');
 
     var name  = document.getElementById('name').value.trim().split(' ');
     var redirectUrl = window.location.origin + window.location.pathname + '?verified=1';
@@ -488,7 +488,7 @@ Card Integration Demo
     frame.style.display = 'block';
     frame.src = url;
 
-    showMsg('msg-3ds', 'msg-info', '⏳ Please enter OTP to verify your payment.');
+    showMsg('msg-3ds', 'msg-info', ' Please enter OTP to verify your payment.');
 
     // Auto-detect when 3DS is done
     var checkInterval = setInterval(function() {
@@ -517,7 +517,7 @@ Card Integration Demo
     var chargeId = document.getElementById('charge-id').value;
     if (!chargeId) return;
 
-    showMsg('msg-3ds', 'msg-info', '⏳ Verifying payment...');
+    showMsg('msg-3ds', 'msg-info', ' Verifying payment...');
     document.getElementById('threeds-frame').style.display = 'none';
 
     apiCall('/charges/' + chargeId)
@@ -569,7 +569,7 @@ Card Integration Demo
     var amt = parseFloat(document.getElementById('mit-amount').value) || 1;
     var cur = document.getElementById('mit-currency').value;
 
-    showMsg('msg-mit', 'msg-info', '⏳ Processing payment...');
+    showMsg('msg-mit', 'msg-info', ' Processing payment...');
 
     apiCall('/charges', 'POST', {
       amount:   amt,
