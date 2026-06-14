@@ -3,353 +3,617 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tap Payments Demo</title>
+  <title>Tap Payments - Card Integration</title>
   <script src="https://tap-sdks.b-cdn.net/card/1.0.2/index.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; padding: 40px 20px; }
-    .wrap { max-width: 480px; margin: 0 auto; }
-    h2 { font-size: 22px; margin-bottom: 6px; }
-    p  { font-size: 13px; color: #888; margin-bottom: 20px; }
-    .field { margin-bottom: 14px; }
-    label { display: block; font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
-    input, select { width: 100%; border: 1.5px solid #ddd; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; font-family: inherit; }
-    input:focus, select:focus { border-color: #1C7EFF; }
-    .row { display: flex; gap: 10px; }
-    .row input { flex: 1; }
-    .row select { width: 100px; flex-shrink: 0; }
-    #card-sdk-id { margin: 10px 0; min-height: 120px; }
-    .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; background: #1C7EFF; color: white; font-family: inherit; margin-bottom: 10px; }
-    .btn.green { background: #00C48C; }
-    .btn.gray  { background: #666; }
-    .msg { border-radius: 10px; padding: 11px 14px; font-size: 13px; margin: 10px 0; display: none; }
-    .msg.show { display: block; }
-    .info    { background: #e8f1ff; color: #1C7EFF; }
-    .success { background: #e6f9f3; color: #00a876; }
-    .error   { background: #fff0f3; color: #e63946; }
-    .warn    { background: #fff8e6; color: #c87f00; }
-    section { display: none; }
-    section.show { display: block; }
-    .sp { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .tc { background: #f0f4ff; border-radius: 10px; padding: 12px; margin-top: 12px; font-size: 12px; }
-    .tc h4 { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-    .tr { display: flex; justify-content: space-between; padding: 3px 0; }
-    .tn { font-family: monospace; font-weight: 700; color: #1C7EFF; }
-    .saved-card { border: 2px solid #00C48C; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 16px; background: #f0fdf8; }
-    .card-icon { width: 52px; height: 34px; border-radius: 6px; background: linear-gradient(135deg,#1a1f71,#2d3ab5); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 800; }
-    .card-icon.mc { background: linear-gradient(135deg,#eb001b,#f79e1b); }
-    .card-num { font-size: 16px; font-weight: 600; letter-spacing: 2px; font-family: monospace; }
-    .card-meta { font-size: 12px; color: #999; margin-top: 3px; }
-    .success-screen { text-align: center; padding: 30px 0; }
-    .success-icon { font-size: 56px; margin-bottom: 12px; }
-    .success-title { font-size: 22px; font-weight: 700; color: #00a876; margin-bottom: 6px; }
-    .success-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Simple header */
+    .header {
+      background: #0070f3;
+      color: white;
+      padding: 16px 24px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    /* Main container */
+    .container {
+      max-width: 460px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* Section titles */
+    h3 {
+      font-size: 18px;
+      margin-bottom: 6px;
+      color: #111;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    /* Form fields */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 5px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #0070f3;
+    }
+    .amount-row {
+      display: flex;
+      gap: 10px;
+    }
+    .amount-row input { flex: 1; }
+    .amount-row select { width: 90px; }
+
+    /* Card SDK container */
+    #card-sdk-id {
+      margin: 10px 0 16px 0;
+      min-height: 130px;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-blue  { background: #0070f3; color: white; }
+    .btn-green { background: #00b37e; color: white; }
+    .btn-gray  { background: #555; color: white; }
+    .btn:hover { opacity: 0.9; }
+
+    /* Messages */
+    .message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin: 10px 0;
+      display: none;
+    }
+    .message.show { display: block; }
+    .msg-info    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .msg-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .msg-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .msg-warn    { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 28px 0;
+    }
+
+    /* Saved card display */
+    .saved-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid #00b37e;
+      border-radius: 10px;
+      padding: 14px;
+      background: #f0fdf4;
+      margin-bottom: 16px;
+    }
+    .card-logo {
+      width: 48px;
+      height: 30px;
+      border-radius: 5px;
+      background: #1a1f71;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-logo.mc { background: linear-gradient(135deg, #eb001b, #f79e1b); }
+    .card-number { font-size: 15px; font-weight: bold; font-family: monospace; letter-spacing: 2px; }
+    .card-type   { font-size: 12px; color: #888; margin-top: 2px; }
 
     /* 3DS iframe */
     #threeds-frame {
       width: 100%;
-      height: 480px;
-      border: none;
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      height: 450px;
+      border: 1px solid #eee;
+      border-radius: 10px;
       display: none;
       margin-bottom: 12px;
     }
+
+    /* Success screen */
+    .success-box {
+      text-align: center;
+      padding: 40px 0;
+    }
+    .success-box .icon  { font-size: 60px; margin-bottom: 12px; }
+    .success-box h3     { color: #166534; font-size: 22px; margin-bottom: 6px; }
+    .success-box p      { color: #888; font-size: 14px; }
+
+    /* Test card hint */
+    .test-hint {
+      background: #f8faff;
+      border: 1px solid #e0eaff;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      color: #555;
+      margin-top: 12px;
+    }
+    .test-hint b { color: #0070f3; font-family: monospace; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Hide sections by default */
+    .section { display: none; }
+    .section.active { display: block; }
   </style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- STEP 1: PAYMENT FORM -->
-  <section id="s1" class="show">
-    <h2>Card Payment</h2>
-    <p>Enter your details to pay. Your card will be saved for future use.</p>
-    <div class="field"><label>Full Name</label><input id="fname" value="Test User" /></div>
-    <div class="field"><label>Email</label><input id="femail" value="test@tap.company" /></div>
-    <div class="field">
+<div class="header">
+  💳 Tap Payments — Card Integration Demo
+</div>
+
+<div class="container">
+
+  <!-- ══════════════════════════════════════
+       SECTION 1: PAY WITH CARD (CIT)
+  ══════════════════════════════════════ -->
+  <div class="section active" id="section-pay">
+    <h3>Pay with Card</h3>
+    <p class="subtitle">Enter your card details to complete payment. Card will be saved for future use.</p>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="name" value="Test User" placeholder="Your name" />
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" value="test@tap.company" placeholder="your@email.com" />
+    </div>
+
+    <div class="form-group">
       <label>Amount</label>
-      <div class="row">
-        <input id="famount" type="number" value="1" />
-        <select id="fcur"><option>KWD</option><option>SAR</option><option>AED</option><option>USD</option></select>
+      <div class="amount-row">
+        <input type="number" id="amount" value="1" min="0.1" />
+        <select id="currency">
+          <option value="KWD">KWD</option>
+          <option value="SAR">SAR</option>
+          <option value="AED">AED</option>
+          <option value="USD">USD</option>
+        </select>
       </div>
     </div>
-    <label>Card Details</label>
-    <div id="card-sdk-id"></div>
-    <div class="msg" id="m1"></div>
-    <button class="btn" id="payBtn" onclick="doPay()">Pay Now</button>
-    <div class="tc">
-      <h4>Test Card</h4>
-      <div class="tr"><span>Card Number</span><span class="tn">4111 1111 1111 1111</span></div>
-      <div class="tr"><span>Expiry / CVV</span><span class="tn">01/39 · 100</span></div>
-    </div>
-  </section>
 
-  <!-- STEP 2: 3DS INLINE IFRAME -->
-  <section id="s2">
-    <h2>Verify Payment</h2>
-    <p>Complete OTP below to confirm your payment.</p>
-    <div class="msg" id="m2"></div>
-    <iframe id="threeds-frame"></iframe>
-    <button class="btn gray" onclick="doVerify()" id="verifyBtn" style="display:none;">
-      ✓ OTP Done — Confirm Payment
+    <div class="form-group">
+      <label>Card Details</label>
+      <div id="card-sdk-id"></div>
+    </div>
+
+    <div class="message msg-info" id="msg-pay"></div>
+
+    <button class="btn btn-blue" id="payBtn" onclick="startPayment()">
+      Pay Now
     </button>
-    <input type="hidden" id="vid" />
-  </section>
 
-  <!-- STEP 3: SAVED CARD -->
-  <section id="s3">
-    <h2>Your Saved Card</h2>
-    <p>Your card is saved. Pay anytime without OTP.</p>
-    <div id="savedCardUI"></div>
-    <div class="field">
+    <div class="test-hint">
+      🧪 <strong>Test Card:</strong>
+      &nbsp; Number: <b>4111 1111 1111 1111</b>
+      &nbsp; Expiry: <b>01/39</b>
+      &nbsp; CVV: <b>100</b>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 2: 3DS VERIFICATION
+  ══════════════════════════════════════ -->
+  <div class="section" id="section-3ds">
+    <h3>Verify Payment (OTP)</h3>
+    <p class="subtitle">Enter the OTP sent by your bank to confirm payment.</p>
+
+    <div class="message msg-info show" id="msg-3ds">⏳ Loading OTP page...</div>
+
+    <iframe id="threeds-frame"></iframe>
+
+    <button class="btn btn-gray" id="verifyBtn" onclick="verifyPayment()" style="display:none;">
+      ✓ I entered OTP — Confirm Payment
+    </button>
+
+    <input type="hidden" id="charge-id" />
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 3: SAVED CARD (MIT)
+  ══════════════════════════════════════ -->
+  <div class="section" id="section-saved">
+    <h3>Your Saved Card</h3>
+    <p class="subtitle">Your card is saved. Pay again without entering OTP.</p>
+
+    <div id="saved-card-display"></div>
+
+    <div class="form-group">
       <label>Amount</label>
-      <div class="row">
-        <input id="mamount" type="number" value="1" />
-        <select id="mcur"><option>KWD</option><option>SAR</option><option>AED</option><option>USD</option></select>
+      <div class="amount-row">
+        <input type="number" id="mit-amount" value="1" min="0.1" />
+        <select id="mit-currency">
+          <option value="KWD">KWD</option>
+          <option value="SAR">SAR</option>
+          <option value="AED">AED</option>
+          <option value="USD">USD</option>
+        </select>
       </div>
     </div>
-    <div class="msg" id="m3"></div>
-    <button class="btn green" onclick="doMIT()">Pay with Saved Card (No OTP)</button>
-  </section>
 
-  <!-- STEP 4: SUCCESS -->
-  <section id="s4">
-    <div class="success-screen">
-      <div class="success-icon">✅</div>
-      <div class="success-title">Payment Successful!</div>
-      <div class="success-sub" id="successSub">Charged without OTP</div>
+    <div class="message" id="msg-mit"></div>
+
+    <button class="btn btn-green" onclick="payWithSavedCard()">
+      Pay with Saved Card (No OTP)
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 4: SUCCESS
+  ══════════════════════════════════════ -->
+  <div class="section" id="section-success">
+    <div class="success-box">
+      <div class="icon">✅</div>
+      <h3>Payment Successful!</h3>
+      <p id="success-text">Payment charged without OTP.</p>
     </div>
-    <button class="btn green" onclick="showStep('s3')">← Pay Again</button>
-  </section>
+    <button class="btn btn-green" onclick="showSection('section-saved')">
+      ← Pay Again with Saved Card
+    </button>
+  </div>
 
 </div>
 
 <script>
-const PK  = 'pk_test_EtHFV4BuPQokJT6jiROls87Y';
-const SK  = 'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ';
-const MID = '599424';
-const API = 'https://api.tap.company/v2';
-const S   = {};
+  // ─── CONFIG ──────────────────────────────────────
+  var PUBLIC_KEY  = 'pk_test_EtHFV4BuPQokJT6jiROls87Y';
+  var SECRET_KEY  = 'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ';
+  var MERCHANT_ID = '599424';
+  var API_URL     = 'https://api.tap.company/v2';
 
-const PROXIES = [
-  (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-];
-
-async function apiCall(path, method, body) {
-  const url  = API + path;
-  const opts = { method: method||'GET', headers: { 'Authorization':'Bearer '+SK, 'Content-Type':'application/json' } };
-  if (body) opts.body = JSON.stringify(body);
-  try { const r = await fetch(url, opts); if (r.status < 500) return r; } catch(e) {}
-  for (const p of PROXIES) {
-    try { const r = await fetch(p(url), opts); if (r.status < 500) return r; } catch(e) {}
-  }
-  throw new Error('Network error');
-}
-
-function showStep(id) {
-  ['s1','s2','s3','s4'].forEach(s => {
-    document.getElementById(s).className = s===id ? 'show' : '';
-  });
-}
-
-function setMsg(id, type, txt) {
-  const el = document.getElementById(id);
-  el.className = 'msg '+type+' show';
-  el.textContent = txt;
-}
-
-// ── INIT SDK ────────────────────────────────────────────────
-const { renderTapCard, Theme, Currencies, Direction, Edges, Locale } = window.CardSDK;
-renderTapCard('card-sdk-id', {
-  publicKey: PK,
-  merchant:  { id: MID },
-  transaction: { amount: 1, currency: Currencies.KWD },
-  customer: {
-    name: [{ lang: Locale.EN, first: 'Test', last: 'User', middle: 'Test' }],
-    nameOnCard: 'Test Test', editable: true,
-    contact: { email: 'test@tap.company', phone: { countryCode: '965', number: '50000000' } }
-  },
-  acceptance: { supportedBrands: ['VISA','MASTERCARD','AMERICAN_EXPRESS'], supportedCards: 'ALL' },
-  fields:  { cardHolder: true },
-  addons:  { displayPaymentBrands: true, loader: true, saveCard: true },
-  interface: { locale: Locale.EN, theme: Theme.LIGHT, edges: Edges.CURVED, direction: Direction.LTR },
-  onReady:          () => console.log('ready'),
-  onFocus:          () => console.log('focus'),
-  onBinIdentification: (d) => console.log('bin', d),
-  onValidInput:     (d) => console.log('valid', d),
-  onInvalidInput:   (d) => console.log('invalid', d),
-  onChangeSaveCardLater: (v) => console.log('saveCard', v),
-  onError:  (d) => { console.error(d); setMsg('m1','error','❌ '+(d?.message||JSON.stringify(d))); },
-  onSuccess:(d) => { S.token = d; createCharge(d); }
-});
-
-function doPay() {
-  document.getElementById('payBtn').innerHTML = '<span class="sp"></span>Processing...';
-  setMsg('m1','info','⏳ Processing...');
-  window.CardSDK.tokenize();
-}
-
-// ── CREATE CHARGE ───────────────────────────────────────────
-async function createCharge(tok) {
-  const parts = document.getElementById('fname').value.trim().split(' ');
-  // Build redirect URL with marker
-  const redirectUrl = window.location.origin + window.location.pathname + '?tap_done=1';
-  try {
-    const res = await apiCall('/charges','POST',{
-      amount: parseFloat(document.getElementById('famount').value)||1,
-      currency: document.getElementById('fcur').value,
-      threeDSecure: true, save_card: true, customer_initiated: true,
-      description: 'CIT Payment',
-      customer: {
-        first_name: parts[0]||'Test', last_name: parts[1]||'User',
-        email: document.getElementById('femail').value,
-        phone: { country_code:'965', number:'50000000' }
-      },
-      merchant: { id: MID },
-      source: { id: tok.id },
-      payment_agreement: { contract: { type:'UNSCHEDULED' } },
-      redirect: { url: redirectUrl },
-      post: { url: 'https://webhook.site/tap-demo' }
-    });
-    const ch = await res.json();
-    console.log('Charge:', ch);
-    document.getElementById('payBtn').textContent = 'Pay Now';
-
-    if (!ch.id) { setMsg('m1','error','❌ '+(ch.errors?.[0]?.description||JSON.stringify(ch))); return; }
-
-    S.charge = ch;
-    document.getElementById('vid').value = ch.id;
-
-    if (ch.transaction?.url) {
-      showStep('s2');
-      load3DS(ch.transaction.url);
-    } else if (ch.status === 'CAPTURED') {
-      captureCard(ch);
-    }
-  } catch(e) {
-    document.getElementById('payBtn').textContent = 'Pay Now';
-    setMsg('m1','error','❌ '+e.message);
-  }
-}
-
-// ── LOAD 3DS IN IFRAME ──────────────────────────────────────
-function load3DS(url) {
-  const frame = document.getElementById('threeds-frame');
-  frame.style.display = 'block';
-  frame.src = url;
-  setMsg('m2','info','⏳ Enter OTP below, then click Confirm.');
-
-  // Poll iframe URL to detect when 3DS is done
-  const poll = setInterval(() => {
-    try {
-      const frameUrl = frame.contentWindow?.location?.href || '';
-      console.log('Frame URL:', frameUrl);
-      // When Tap redirects back to our page
-      if (frameUrl.includes('tap_done=1') || frameUrl.includes(window.location.hostname)) {
-        clearInterval(poll);
-        frame.style.display = 'none';
-        // Extract tap_id if present
-        const u = new URL(frameUrl);
-        const tapId = u.searchParams.get('tap_id') || document.getElementById('vid').value;
-        document.getElementById('vid').value = tapId || document.getElementById('vid').value;
-        setMsg('m2','success','✅ OTP completed! Verifying...');
-        setTimeout(() => doVerify(), 800);
-      }
-    } catch(e) {
-      // Cross-origin — show manual button
-      document.getElementById('verifyBtn').style.display = 'block';
-    }
-  }, 1000);
-
-  // After 30 sec show manual verify button anyway
-  setTimeout(() => {
-    document.getElementById('verifyBtn').style.display = 'block';
-    setMsg('m2','info','✅ OTP done? Click confirm below.');
-  }, 15000);
-}
-
-// ── VERIFY ──────────────────────────────────────────────────
-async function doVerify() {
-  const id = document.getElementById('vid').value.trim();
-  if (!id) return;
-  setMsg('m2','info','⏳ Verifying payment...');
-  document.getElementById('threeds-frame').style.display = 'none';
-  try {
-    const res = await apiCall('/charges/'+id);
-    const ch  = await res.json();
-    console.log('Verified:', ch);
-    if (ch.status === 'CAPTURED') captureCard(ch);
-    else {
-      setMsg('m2','warn','⚠️ OTP not completed yet.');
-      document.getElementById('verifyBtn').style.display = 'block';
-      document.getElementById('threeds-frame').style.display = 'block';
-    }
-  } catch(e) { setMsg('m2','error','❌ '+e.message); }
-}
-
-// ── CAPTURE CARD ────────────────────────────────────────────
-function captureCard(ch) {
-  S.agreementId = ch.payment_agreement?.id;
-  S.customerId  = ch.customer?.id;
-  S.card = {
-    last_four: ch.card?.last_four||'****',
-    brand: (ch.card?.brand||'VISA').toUpperCase(),
-    cardId: ch.payment_agreement?.contract?.id || ch.card?.id
+  // Store important data
+  var savedData = {
+    token:       null,
+    chargeId:    null,
+    cardId:      null,
+    agreementId: null,
+    customerId:  null,
+    cardBrand:   null,
+    cardLast4:   null
   };
-  const isMC = S.card.brand.includes('MASTER');
-  document.getElementById('savedCardUI').innerHTML = `
-    <div class="saved-card">
-      <div class="card-icon ${isMC?'mc':''}">${S.card.brand.slice(0,4)}</div>
-      <div>
-        <div class="card-num">•••• •••• •••• ${S.card.last_four}</div>
-        <div class="card-meta">${S.card.brand} · Saved · Ready to use</div>
-      </div>
-    </div>`;
-  showStep('s3');
-}
 
-// ── MIT ─────────────────────────────────────────────────────
-async function doMIT() {
-  if (!S.agreementId) { setMsg('m3','warn','⚠️ Complete payment first.'); return; }
-  const amt = parseFloat(document.getElementById('mamount').value)||1;
-  const cur = document.getElementById('mcur').value;
-  setMsg('m3','info','⏳ Processing...');
-  try {
-    const res = await apiCall('/charges','POST',{
-      amount: amt, currency: cur,
-      threeDSecure: false, save_card: false, customer_initiated: false,
-      description: 'MIT Payment',
-      customer: { id: S.customerId },
-      merchant:  { id: MID },
-      source:    { id: S.card?.cardId || S.token?.id },
-      payment_agreement: { id: S.agreementId },
-      redirect: { url: window.location.href },
-      post: { url: 'https://webhook.site/tap-demo' }
-    });
-    const ch = await res.json();
-    console.log('MIT:', ch);
-    if (ch.id && ch.status === 'CAPTURED') {
-      document.getElementById('successSub').textContent = amt+' '+cur+' charged — No OTP required!';
-      showStep('s4');
-    } else {
-      setMsg('m3', ch.id?'info':'error', ch.id?'Status: '+ch.status:'❌ '+(ch.errors?.[0]?.description||JSON.stringify(ch)));
+  // ─── SHOW / HIDE SECTIONS ─────────────────────────
+  function showSection(id) {
+    var sections = document.querySelectorAll('.section');
+    for (var i = 0; i < sections.length; i++) {
+      sections[i].classList.remove('active');
     }
-  } catch(e) { setMsg('m3','error','❌ '+e.message); }
-}
-
-// ── CHECK REDIRECT RETURN ───────────────────────────────────
-window.addEventListener('load', () => {
-  const p = new URLSearchParams(window.location.search);
-  if (p.get('tap_done') && p.get('tap_id')) {
-    document.getElementById('vid').value = p.get('tap_id');
-    showStep('s2');
-    setMsg('m2','info','⏳ Verifying payment...');
-    setTimeout(() => doVerify(), 500);
+    document.getElementById(id).classList.add('active');
   }
-});
+
+  // ─── SHOW MESSAGE ─────────────────────────────────
+  function showMsg(id, type, text) {
+    var el = document.getElementById(id);
+    el.className = 'message ' + type + ' show';
+    el.textContent = text;
+  }
+
+  // ─── API CALL (with proxy fallback) ───────────────
+  var PROXIES = [
+    function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); },
+    function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }
+  ];
+
+  function apiCall(path, method, body) {
+    var url  = API_URL + path;
+    var opts = {
+      method:  method || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + SECRET_KEY,
+        'Content-Type':  'application/json'
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+
+    // Try direct, then proxies
+    return fetch(url, opts)
+      .catch(function() { return fetch(PROXIES[0](url), opts); })
+      .catch(function() { return fetch(PROXIES[1](url), opts); });
+  }
+
+  // ─── INIT TAP CARD SDK ────────────────────────────
+  var CardSDK = window.CardSDK;
+  var renderTapCard  = CardSDK.renderTapCard;
+  var Theme          = CardSDK.Theme;
+  var Currencies     = CardSDK.Currencies;
+  var Direction      = CardSDK.Direction;
+  var Edges          = CardSDK.Edges;
+  var Locale         = CardSDK.Locale;
+
+  renderTapCard('card-sdk-id', {
+    publicKey: PUBLIC_KEY,
+    merchant:  { id: MERCHANT_ID },
+    transaction: {
+      amount:   1,
+      currency: Currencies.KWD
+    },
+    customer: {
+      name: [{ lang: Locale.EN, first: 'Test', last: 'User', middle: 'Test' }],
+      nameOnCard: 'Test Test',
+      editable: true,
+      contact: {
+        email: 'test@tap.company',
+        phone: { countryCode: '965', number: '50000000' }
+      }
+    },
+    acceptance: {
+      supportedBrands: ['VISA', 'MASTERCARD', 'AMERICAN_EXPRESS'],
+      supportedCards: 'ALL'
+    },
+    fields:  { cardHolder: true },
+    addons:  { displayPaymentBrands: true, loader: true, saveCard: true },
+    interface: {
+      locale:    Locale.EN,
+      theme:     Theme.LIGHT,
+      edges:     Edges.CURVED,
+      direction: Direction.LTR
+    },
+    onReady:             function() { console.log('Card SDK Ready'); },
+    onFocus:             function() { console.log('Card focused'); },
+    onBinIdentification: function(data) { console.log('Card brand:', data); },
+    onValidInput:        function(data) { console.log('Valid input'); },
+    onInvalidInput:      function(data) { console.log('Invalid input'); },
+    onChangeSaveCardLater: function(v)  { console.log('Save card:', v); },
+    onError: function(err) {
+      console.error('SDK Error:', err);
+      showMsg('msg-pay', 'msg-error', '❌ Card error: ' + (err.message || JSON.stringify(err)));
+    },
+    onSuccess: function(tokenData) {
+      console.log('Token received:', tokenData);
+      savedData.token = tokenData;
+      createCharge(tokenData);
+    }
+  });
+
+  // ─── STEP 1: TOKENIZE CARD ────────────────────────
+  function startPayment() {
+    document.getElementById('payBtn').innerHTML = '<span class="spinner"></span>Processing...';
+    showMsg('msg-pay', 'msg-info', '⏳ Tokenizing card details...');
+    window.CardSDK.tokenize();
+  }
+
+  // ─── STEP 2: CREATE CHARGE ────────────────────────
+  function createCharge(tokenData) {
+    showMsg('msg-pay', 'msg-info', '⏳ Creating charge...');
+
+    var name  = document.getElementById('name').value.trim().split(' ');
+    var redirectUrl = window.location.origin + window.location.pathname + '?verified=1';
+
+    apiCall('/charges', 'POST', {
+      amount:   parseFloat(document.getElementById('amount').value) || 1,
+      currency: document.getElementById('currency').value,
+      threeDSecure:       true,
+      save_card:          true,
+      customer_initiated: true,
+      description: 'Card Payment Demo',
+      customer: {
+        first_name: name[0] || 'Test',
+        last_name:  name[1] || 'User',
+        email: document.getElementById('email').value,
+        phone: { country_code: '965', number: '50000000' }
+      },
+      merchant: { id: MERCHANT_ID },
+      source:   { id: tokenData.id },
+      payment_agreement: { contract: { type: 'UNSCHEDULED' } },
+      redirect: { url: redirectUrl },
+      post:     { url: 'https://webhook.site/tap-demo' }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(charge) {
+      console.log('Charge created:', charge);
+      document.getElementById('payBtn').textContent = 'Pay Now';
+
+      if (!charge.id) {
+        showMsg('msg-pay', 'msg-error', '❌ ' + (charge.errors?.[0]?.description || 'Something went wrong'));
+        return;
+      }
+
+      savedData.chargeId = charge.id;
+      document.getElementById('charge-id').value = charge.id;
+
+      if (charge.transaction && charge.transaction.url) {
+        // Load 3DS in iframe
+        showSection('section-3ds');
+        load3DSPage(charge.transaction.url);
+      } else if (charge.status === 'CAPTURED') {
+        saveCardData(charge);
+      }
+    })
+    .catch(function(err) {
+      document.getElementById('payBtn').textContent = 'Pay Now';
+      showMsg('msg-pay', 'msg-error', '❌ ' + err.message);
+    });
+  }
+
+  // ─── STEP 3: LOAD 3DS PAGE ────────────────────────
+  function load3DSPage(url) {
+    var frame = document.getElementById('threeds-frame');
+    frame.style.display = 'block';
+    frame.src = url;
+
+    showMsg('msg-3ds', 'msg-info', '⏳ Please enter OTP to verify your payment.');
+
+    // Auto-detect when 3DS is done
+    var checkInterval = setInterval(function() {
+      try {
+        var frameUrl = frame.contentWindow.location.href;
+        if (frameUrl.includes('verified=1')) {
+          clearInterval(checkInterval);
+          frame.style.display = 'none';
+          showMsg('msg-3ds', 'msg-success', '✅ OTP verified! Confirming payment...');
+          setTimeout(verifyPayment, 800);
+        }
+      } catch(e) {
+        // Cross-origin — show manual button after 10 seconds
+      }
+    }, 1000);
+
+    // Show manual button after 10 seconds
+    setTimeout(function() {
+      document.getElementById('verifyBtn').style.display = 'block';
+      showMsg('msg-3ds', 'msg-info', '✅ OTP entered? Click the button below to confirm.');
+    }, 10000);
+  }
+
+  // ─── STEP 4: VERIFY CHARGE ────────────────────────
+  function verifyPayment() {
+    var chargeId = document.getElementById('charge-id').value;
+    if (!chargeId) return;
+
+    showMsg('msg-3ds', 'msg-info', '⏳ Verifying payment...');
+    document.getElementById('threeds-frame').style.display = 'none';
+
+    apiCall('/charges/' + chargeId)
+    .then(function(res) { return res.json(); })
+    .then(function(charge) {
+      console.log('Verified charge:', charge);
+      if (charge.status === 'CAPTURED') {
+        saveCardData(charge);
+      } else {
+        showMsg('msg-3ds', 'msg-warn', '⚠️ OTP not completed yet. Please enter OTP first.');
+        document.getElementById('verifyBtn').style.display = 'block';
+        document.getElementById('threeds-frame').style.display = 'block';
+      }
+    })
+    .catch(function(err) {
+      showMsg('msg-3ds', 'msg-error', '❌ ' + err.message);
+    });
+  }
+
+  // ─── STEP 5: SAVE CARD DATA ───────────────────────
+  function saveCardData(charge) {
+    savedData.agreementId = charge.payment_agreement && charge.payment_agreement.id;
+    savedData.customerId  = charge.customer && charge.customer.id;
+    savedData.cardId      = (charge.payment_agreement && charge.payment_agreement.contract && charge.payment_agreement.contract.id) || (charge.card && charge.card.id);
+    savedData.cardBrand   = (charge.card && charge.card.brand) ? charge.card.brand.toUpperCase() : 'VISA';
+    savedData.cardLast4   = (charge.card && charge.card.last_four) || '****';
+
+    // Show saved card UI
+    var isMC = savedData.cardBrand.indexOf('MASTER') > -1;
+    document.getElementById('saved-card-display').innerHTML =
+      '<div class="saved-card">' +
+        '<div class="card-logo ' + (isMC ? 'mc' : '') + '">' + savedData.cardBrand.slice(0,4) + '</div>' +
+        '<div>' +
+          '<div class="card-number">•••• •••• •••• ' + savedData.cardLast4 + '</div>' +
+          '<div class="card-type">' + savedData.cardBrand + ' · Saved Card</div>' +
+        '</div>' +
+      '</div>';
+
+    showSection('section-saved');
+  }
+
+  // ─── STEP 6: MIT — PAY WITHOUT OTP ───────────────
+  function payWithSavedCard() {
+    if (!savedData.agreementId) {
+      showMsg('msg-mit', 'msg-warn', '⚠️ No saved card found. Please complete a payment first.');
+      return;
+    }
+
+    var amt = parseFloat(document.getElementById('mit-amount').value) || 1;
+    var cur = document.getElementById('mit-currency').value;
+
+    showMsg('msg-mit', 'msg-info', '⏳ Processing payment...');
+
+    apiCall('/charges', 'POST', {
+      amount:   amt,
+      currency: cur,
+      threeDSecure:       false,
+      save_card:          false,
+      customer_initiated: false,
+      description: 'MIT Payment Demo',
+      customer: { id: savedData.customerId },
+      merchant: { id: MERCHANT_ID },
+      source:   { id: savedData.cardId },
+      payment_agreement: { id: savedData.agreementId },
+      redirect: { url: window.location.href },
+      post:     { url: 'https://webhook.site/tap-demo' }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(charge) {
+      console.log('MIT charge:', charge);
+      if (charge.id && charge.status === 'CAPTURED') {
+        document.getElementById('success-text').textContent =
+          amt + ' ' + cur + ' charged successfully — No OTP was required!';
+        showSection('section-success');
+      } else {
+        showMsg('msg-mit', charge.id ? 'msg-info' : 'msg-error',
+          charge.id ? 'Status: ' + charge.status : '❌ ' + ((charge.errors && charge.errors[0] && charge.errors[0].description) || JSON.stringify(charge)));
+      }
+    })
+    .catch(function(err) {
+      showMsg('msg-mit', 'msg-error', '❌ ' + err.message);
+    });
+  }
+
+  // ─── HANDLE REDIRECT BACK FROM 3DS ───────────────
+  window.onload = function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === '1' && params.get('tap_id')) {
+      document.getElementById('charge-id').value = params.get('tap_id');
+      showSection('section-3ds');
+      showMsg('msg-3ds', 'msg-info', '⏳ Confirming your payment...');
+      setTimeout(verifyPayment, 600);
+    }
+  };
 </script>
+
 </body>
 </html>
