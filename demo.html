@@ -453,7 +453,7 @@ Card Integration Demo
       source:   { id: tokenData.id },
       payment_agreement: { contract: { type: 'UNSCHEDULED' } },
       redirect: { url: redirectUrl },
-      post:     { url: 'https://webhook.site/tap-demo' }
+     // post:     { url: 'https://webhook.site/tap-demo' }
     })
     .then(function(res) { return res.json(); })
     .then(function(charge) {
